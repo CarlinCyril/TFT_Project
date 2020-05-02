@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Iterable
 
 from Trait import Trait
 
@@ -21,12 +21,13 @@ class Champion:
 
 
 class Composition:
-    def __init__(self, champions: List[Champion], traits_model: Dict[str, Trait]):
+    def __init__(self, champions: Iterable[Champion], traits_model: Dict[str, Trait]):
         self.champions = champions
         self.synergies = dict()
         self.traits_model = traits_model
         self.score = 0
         self.compute_synergies()
+        self.scoring()
 
     def __repr__(self):
         result = "~~~~~~~~~~~~~~~~ COMPOSITION ~~~~~~~~~~~~~~~~\n"
@@ -40,6 +41,24 @@ class Composition:
             result += champion.__repr__() + "\n"
 
         return result
+
+    def __lt__(self, other):
+        return self.score < other.score
+
+    def __gt__(self, other):
+        return self.score > other.score
+
+    def __eq__(self, other):
+        return self.score == other.score
+
+    def __le__(self, other):
+        return self.score <= other.score
+
+    def __ge__(self, other):
+        return self.score >= other.score
+
+    def __ne__(self, other):
+        return self.score != other.score
 
     def compute_synergies(self):
         for champion in self.champions:

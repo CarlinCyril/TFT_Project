@@ -1,5 +1,4 @@
 import json
-from argparse import ArgumentParser
 from itertools import combinations
 from multiprocessing.pool import Pool
 from typing import List, Dict
@@ -68,46 +67,3 @@ class ParserTFT:
         except KeyError:
             raise ParsingException("Failed to parse Champion file.")
 
-
-class Main:
-    def __init__(self, champions: List[Champion], traits: Dict[str, Trait]):
-        self.champions = champions
-        self.traits = traits
-
-    def run(self):
-        compositions_by_level = dict()
-        print("Computing all combinations of all {} champions".format(len(self.champions)))
-        # print("Compositions of 7 champions")
-        pool = Pool(processes=3)
-        combinations_of_7, combinations_of_8, combinations_of_9 = \
-            pool.starmap(combinations, [(self.champions, 7), (self.champions, 8), (self.champions, 9)])
-
-        compos_of_7 = [Composition(champions_pool, self.traits) for champions_pool in combinations_of_7]
-        # print("Compositions of 8 champions")
-        compos_of_8 = [Composition(champions_pool, self.traits) for champions_pool in combinations_of_8]
-        # print("Compositions of 9 champions")
-        compos_of_9 = [Composition(champions_pool, self.traits) for champions_pool in combinations_of_9]
-
-        print("Scoring each composition found")
-        compositions_by_level[7] = sorted(compos_of_7, key=Composition.scoring, reverse=True)
-        compositions_by_level[8] = sorted(compos_of_8, key=Composition.scoring, reverse=True)
-        compositions_by_level[9] = sorted(compos_of_9, key=Composition.scoring, reverse=True)
-
-        for level, composition in compositions_by_level.items():
-            print("########################################")
-            print("############### LEVEL {} ###############".format(level))
-            print("########################################")
-            print(composition.__repr__())
-
-
-if __name__ == '__main__':
-    parser = ArgumentParser()
-    parser.add_argument("-t", "--trait", help="Path to the Trait file you want to parse")
-    parser.add_argument("-c", "--champ", help="Path to the Champion file you want to parse")
-    args = parser.parse_args()
-    tft_parser = ParserTFT(file_traits=args.trait, file_champions=args.champ)
-    parsed_champions = tft_parser.champion_parser()
-    parsed_traits = tft_parser.trait_parser()
-    main = Main(parsed_champions, parsed_traits)
-    
-    main.run()
